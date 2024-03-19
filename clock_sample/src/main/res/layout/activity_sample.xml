@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="utf-8"?>
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@drawable/background"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+
+    <com.perforators.clock.ClockView
+        android:id="@+id/clockView"
+        android:layout_width="match_parent"
+        android:layout_height="300dp"
+        android:padding="16dp"
+        app:labelsSize="24sp"
+        app:labelsOffsetFromEdge="8dp"
+        app:clockBackgroundColor="@color/gray"
+        app:borderColor="@android:color/black"
+        app:borderWidth="12dp"
+        app:secondArrowWidth="2dp"
+        app:minuteArrowWidth="4dp"
+        app:hourArrowWidth="8dp"
+        app:secondArrowColor="@android:color/holo_red_light"/>
+
+</FrameLayout>

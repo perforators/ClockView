@@ -49,7 +49,8 @@ internal class BackgroundDrawer(private val view: ClockView) : Drawer {
     override fun initialize(typedArray: TypedArray) {
         borderWidth = typedArray.getDimension(R.styleable.ClockView_borderWidth, borderWidth)
         borderColor = typedArray.getColor(R.styleable.ClockView_borderColor, borderColor)
-        backgroundColor = typedArray.getColor(R.styleable.ClockView_borderColor, backgroundColor)
+        backgroundColor =
+            typedArray.getColor(R.styleable.ClockView_clockBackgroundColor, backgroundColor)
     }
 
     fun draw(canvas: Canvas, circle: Circle) {
