@@ -3,6 +3,7 @@ package com.perforators.clock
 import android.content.Context
 import android.content.res.TypedArray
 import android.graphics.Canvas
+import android.os.Bundle
 import android.os.Parcelable
 import android.util.AttributeSet
 import android.view.Choreographer
@@ -10,7 +11,6 @@ import android.view.Choreographer.FrameCallback
 import android.view.View
 import com.perforators.clock.internal.Circle
 import com.perforators.clock.internal.HourLabel
-import com.perforators.clock.internal.ViewState
 import com.perforators.clock.internal.drawers.BackgroundDrawer
 import com.perforators.clock.internal.drawers.HourArrowDrawer
 import com.perforators.clock.internal.drawers.HourLabelsDrawer
@@ -114,22 +114,25 @@ class ClockView @JvmOverloads constructor(
         get() = height - paddingTop - paddingBottom
 
     override fun onSaveInstanceState(): Parcelable {
-        val superState = super.onSaveInstanceState()
-        return ViewState(superState).apply {
-            write { drawers.values.map { it.saveState() } }
+        val bundle = Bundle()
+        drawers.forEach { (kClass, drawer) ->
+            bundle.putBundle(kClass.toString(), drawer.saveState())
         }
+        bundle.putParcelable(KEY_SUPER_STATE, super.onSaveInstanceState())
+        return bundle
     }
 
     override fun onRestoreInstanceState(state: Parcelable) {
-        val viewState = state as ViewState
-        super.onRestoreInstanceState(viewState.superState)
-        viewState.read {
-            val bundle = readBundle(ClockView::class.java.classLoader) ?: return@read
-            drawers.values.forEach { drawer -> drawer.restoreState(bundle) }
+        val bundle = state as Bundle
+        drawers.forEach { (kClass, drawer) ->
+            val innerBundle = bundle.getBundle(kClass.toString()) ?: return@forEach
+            drawer.restoreState(innerBundle)
         }
+        super.onRestoreInstanceState(bundle.getParcelable(KEY_SUPER_STATE))
     }
 
     companion object {
+        private const val KEY_SUPER_STATE = "clock_view_super_state"
         private val HOUR_LABELS = (0..11).map { HourLabel(it) }
     }
 }

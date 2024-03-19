@@ -74,6 +74,7 @@ internal abstract class ArrowDrawer(private val view: ClockView) : Drawer {
 
     override fun saveState(): Bundle {
         return bundleOf(
+            KEY_SHOW to isShow,
             KEY_LENGTH to ratioLengthToRadius,
             KEY_OFFSET to ratioOffsetFromCenterToLength,
             KEY_COLOR to color,
@@ -82,6 +83,7 @@ internal abstract class ArrowDrawer(private val view: ClockView) : Drawer {
     }
 
     override fun restoreState(bundle: Bundle) {
+        isShow = bundle.getBoolean(KEY_SHOW)
         ratioLengthToRadius = bundle.getFloat(KEY_LENGTH)
         ratioOffsetFromCenterToLength = bundle.getFloat(KEY_OFFSET)
         color = bundle.getInt(KEY_COLOR)
@@ -97,6 +99,7 @@ internal abstract class ArrowDrawer(private val view: ClockView) : Drawer {
         private const val DEFAULT_WIDTH_IN_DP = 2
         private const val ADJUSTMENT_ANGLE = 90f
 
+        private const val KEY_SHOW = "show"
         private const val KEY_LENGTH = "length"
         private const val KEY_OFFSET = "offset"
         private const val KEY_COLOR = "color"
