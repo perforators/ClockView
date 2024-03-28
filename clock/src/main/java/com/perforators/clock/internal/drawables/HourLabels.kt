@@ -18,8 +18,8 @@ internal class HourLabels(
     private val owner: ClockView,
     override val key: String,
     hours: List<Int>,
-    contextFactory: ContextFactory<Circle>,
-) : DrawableObject.WithContext<Circle>(contextFactory) {
+    contextProvider: ContextProvider<Circle>,
+) : DrawableObject.WithContext<Circle>(contextProvider) {
 
     private val paint = Paint().apply {
         isAntiAlias = true

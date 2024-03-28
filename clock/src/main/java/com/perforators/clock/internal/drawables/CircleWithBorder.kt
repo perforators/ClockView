@@ -13,8 +13,8 @@ import com.perforators.clock.internal.dpToPx
 internal class CircleWithBorder(
     private val owner: ClockView,
     override val key: String,
-    contextFactory: ContextFactory<Circle>
-) : DrawableObject.WithContext<Circle>(contextFactory) {
+    contextProvider: ContextProvider<Circle>
+) : DrawableObject.WithContext<Circle>(contextProvider) {
 
     private val backgroundPaint = Paint().apply {
         isAntiAlias = true

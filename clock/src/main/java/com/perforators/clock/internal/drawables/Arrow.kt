@@ -15,8 +15,8 @@ import com.perforators.clock.internal.dpToPx
 internal abstract class Arrow(
     private val owner: View,
     override val key: String,
-    contextFactory: ContextFactory<Context>
-) : DrawableObject.WithContext<Arrow.Context>(contextFactory) {
+    contextProvider: ContextProvider<Context>
+) : DrawableObject.WithContext<Arrow.Context>(contextProvider) {
 
     private val paint = Paint().apply {
         isAntiAlias = true
@@ -121,8 +121,8 @@ internal abstract class Arrow(
 internal class SecondArrow(
     owner: ClockView,
     key: String,
-    contextFactory: ContextFactory<Context>,
-) : Arrow(owner, key, contextFactory) {
+    contextProvider: ContextProvider<Context>,
+) : Arrow(owner, key, contextProvider) {
 
     init {
         width = DEFAULT_WIDTH_IN_DP.dpToPx(owner.context)
@@ -146,8 +146,8 @@ internal class SecondArrow(
 internal class MinuteArrow(
     owner: ClockView,
     key: String,
-    contextFactory: ContextFactory<Context>,
-) : Arrow(owner, key, contextFactory) {
+    contextProvider: ContextProvider<Context>,
+) : Arrow(owner, key, contextProvider) {
 
     init {
         width = DEFAULT_WIDTH_IN_DP.dpToPx(owner.context)
@@ -171,8 +171,8 @@ internal class MinuteArrow(
 internal class HourArrow(
     owner: ClockView,
     key: String,
-    contextFactory: ContextFactory<Context>,
-) : Arrow(owner, key, contextFactory) {
+    contextProvider: ContextProvider<Context>,
+) : Arrow(owner, key, contextProvider) {
 
     init {
         width = DEFAULT_WIDTH_IN_DP.dpToPx(owner.context)

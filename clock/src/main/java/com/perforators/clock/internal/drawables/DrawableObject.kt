@@ -8,20 +8,20 @@ internal interface DrawableObject : Restorable {
     fun measure(widthMeasureSpec: Int, heightMeasureSpec: Int) = Unit
 
     abstract class WithContext<Context>(
-        private val contextFactory: ContextFactory<Context>
+        private val contextProvider: ContextProvider<Context>
     ) : DrawableObject {
         override fun draw(canvas: Canvas) {
-            draw(canvas, contextFactory.provide())
+            draw(canvas, contextProvider.provide())
         }
 
         abstract fun draw(canvas: Canvas, context: Context)
     }
 }
 
-internal fun interface ContextFactory<Context> {
+internal fun interface ContextProvider<Context> {
     fun provide(): Context
 
-    abstract class Reusable<Context> :  ContextFactory<Context> {
+    abstract class Reusable<Context> :  ContextProvider<Context> {
         private var cachedContext: Context? = null
 
         override fun provide(): Context {

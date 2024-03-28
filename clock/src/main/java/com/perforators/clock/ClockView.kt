@@ -11,7 +11,7 @@ import android.view.View
 import com.perforators.clock.internal.Circle
 import com.perforators.clock.internal.drawables.Arrow
 import com.perforators.clock.internal.drawables.CircleWithBorder
-import com.perforators.clock.internal.drawables.ContextFactory
+import com.perforators.clock.internal.drawables.ContextProvider
 import com.perforators.clock.internal.drawables.HourArrow
 import com.perforators.clock.internal.drawables.HourLabels
 import com.perforators.clock.internal.drawables.MinuteArrow
@@ -33,7 +33,7 @@ class ClockView @JvmOverloads constructor(
 
     private val circle = Circle()
 
-    private val arrowContextFactory = object : ContextFactory.Reusable<Arrow.Context>() {
+    private val arrowContextProvider = object : ContextProvider.Reusable<Arrow.Context>() {
         override fun createNew() = Arrow.Context(currentTimeInMillis, circle)
         override fun update(context: Arrow.Context) {
             context.timeInMillis = currentTimeInMillis
@@ -41,17 +41,17 @@ class ClockView @JvmOverloads constructor(
         }
     }
 
-    private val secondArrow = SecondArrow(this, SECOND_ARROW_KEY, arrowContextFactory)
+    private val secondArrow = SecondArrow(this, SECOND_ARROW_KEY, arrowContextProvider)
     var showSecondArrow by secondArrow::isShow
     var secondArrowColor by secondArrow::color
     var secondArrowWidth by secondArrow::width
 
-    private val minuteArrow = MinuteArrow(this, MINUTE_ARROW_KEY, arrowContextFactory)
+    private val minuteArrow = MinuteArrow(this, MINUTE_ARROW_KEY, arrowContextProvider)
     var showMinuteArrow by minuteArrow::isShow
     var minuteArrowColor by minuteArrow::color
     var minuteArrowWidth by minuteArrow::width
 
-    private val hourArrow = HourArrow(this, HOUR_ARROW_KEY, arrowContextFactory)
+    private val hourArrow = HourArrow(this, HOUR_ARROW_KEY, arrowContextProvider)
     var showHourArrow by hourArrow::isShow
     var hourArrowColor by hourArrow::color
     var hourArrowWidth by hourArrow::width
