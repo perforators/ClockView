@@ -63,7 +63,6 @@ internal class HourLabels(
     }
 
     override fun draw(canvas: Canvas, context: Circle) {
-        println(maxLabelDiagonal)
         val labelsOffsetFromCenter = context.radius - offsetFromEdge - maxLabelDiagonal / 2
         labels.forEach { label ->
             canvas.drawLabel(label, labelsOffsetFromCenter.toFloat(), context)
