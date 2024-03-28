@@ -41,27 +41,27 @@ class ClockView @JvmOverloads constructor(
         }
     }
 
-    private val secondArrow = SecondArrow(this, SECOND_ARROW_DRAWER_KEY, arrowContextFactory)
+    private val secondArrow = SecondArrow(this, SECOND_ARROW_KEY, arrowContextFactory)
     var showSecondArrow by secondArrow::isShow
     var secondArrowColor by secondArrow::color
     var secondArrowWidth by secondArrow::width
 
-    private val minuteArrow = MinuteArrow(this, MINUTE_ARROW_DRAWER_KEY, arrowContextFactory)
+    private val minuteArrow = MinuteArrow(this, MINUTE_ARROW_KEY, arrowContextFactory)
     var showMinuteArrow by minuteArrow::isShow
     var minuteArrowColor by minuteArrow::color
     var minuteArrowWidth by minuteArrow::width
 
-    private val hourArrow = HourArrow(this, HOUR_ARROW_DRAWER_KEY, arrowContextFactory)
+    private val hourArrow = HourArrow(this, HOUR_ARROW_KEY, arrowContextFactory)
     var showHourArrow by hourArrow::isShow
     var hourArrowColor by hourArrow::color
     var hourArrowWidth by hourArrow::width
 
-    private val hourLabels = HourLabels(this, HOUR_LABELS_DRAWER_KEY, HOURS) { circle }
+    private val hourLabels = HourLabels(this, HOUR_LABELS_KEY, HOURS) { circle }
     var labelsSize by hourLabels::size
     var labelsColor by hourLabels::color
     var labelsOffsetFromEdge by hourLabels::offsetFromEdge
 
-    private val background = CircleWithBorder(this, BACKGROUND_DRAWER_KEY) { circle }
+    private val background = CircleWithBorder(this, BACKGROUND_KEY) { circle }
     var clockBackgroundColor by background::backgroundColor
     var borderWidth by background::borderWidth
     var borderColor by background::borderColor
@@ -100,10 +100,10 @@ class ClockView @JvmOverloads constructor(
                 typedArray.getColor(R.styleable.ClockView_clockBackgroundColor, backgroundColor)
         }
         typedArray.recycle()
-        runTimePooling()
+        runTimePolling()
     }
 
-    private fun runTimePooling() {
+    private fun runTimePolling() {
         val choreographer = Choreographer.getInstance()
         var frameCallback: Choreographer.FrameCallback? = null
         frameCallback = Choreographer.FrameCallback {
@@ -157,10 +157,10 @@ class ClockView @JvmOverloads constructor(
         private const val KEY_SUPER_STATE = "clock_view_super_state"
         private val HOURS = (0..11).toList()
 
-        private const val HOUR_ARROW_DRAWER_KEY = "hour_drawer"
-        private const val MINUTE_ARROW_DRAWER_KEY = "minute_drawer"
-        private const val SECOND_ARROW_DRAWER_KEY = "second_drawer"
-        private const val BACKGROUND_DRAWER_KEY = "background_drawer"
-        private const val HOUR_LABELS_DRAWER_KEY = "hour_labels_drawer"
+        private const val HOUR_ARROW_KEY = "hour_arrow"
+        private const val MINUTE_ARROW_KEY = "minute_arrow"
+        private const val SECOND_ARROW_KEY = "second_arrow"
+        private const val BACKGROUND_KEY = "background"
+        private const val HOUR_LABELS_KEY = "hour_labels"
     }
 }
