@@ -1,17 +1,20 @@
-package com.perforators.clock.internal.drawers
+package com.perforators.clock.internal.drawables
 
-import android.content.res.TypedArray
 import android.graphics.Canvas
 import android.graphics.Color
 import android.graphics.Paint
 import android.os.Bundle
+import android.os.Parcelable
 import androidx.core.os.bundleOf
 import com.perforators.clock.ClockView
-import com.perforators.clock.R
 import com.perforators.clock.internal.Circle
 import com.perforators.clock.internal.dpToPx
 
-internal class BackgroundDrawer(private val view: ClockView) : Drawer {
+internal class CircleWithBorder(
+    private val owner: ClockView,
+    override val key: String,
+    contextFactory: ContextFactory<Circle>
+) : DrawableObject.WithContext<Circle>(contextFactory) {
 
     private val backgroundPaint = Paint().apply {
         isAntiAlias = true
@@ -23,11 +26,11 @@ internal class BackgroundDrawer(private val view: ClockView) : Drawer {
         color = DEFAULT_BORDER_COLOR
     }
 
-    var borderWidth = DEFAULT_BORDER_WIDTH_IN_DP.dpToPx(view.context)
+    var borderWidth = DEFAULT_BORDER_WIDTH_IN_DP.dpToPx(owner.context)
         set(value) {
             if (field == value) return
             field = value
-            view.invalidate()
+            owner.invalidate()
         }
 
     var borderColor = borderPaint.color
@@ -35,7 +38,7 @@ internal class BackgroundDrawer(private val view: ClockView) : Drawer {
             if (field == value) return
             field = value
             borderPaint.color = value
-            view.invalidate()
+            owner.invalidate()
         }
 
     var backgroundColor = backgroundPaint.color
@@ -43,27 +46,20 @@ internal class BackgroundDrawer(private val view: ClockView) : Drawer {
             if (field == value) return
             field = value
             backgroundPaint.color = value
-            view.invalidate()
+            owner.invalidate()
         }
 
-    override fun initialize(typedArray: TypedArray) {
-        borderWidth = typedArray.getDimension(R.styleable.ClockView_borderWidth, borderWidth)
-        borderColor = typedArray.getColor(R.styleable.ClockView_borderColor, borderColor)
-        backgroundColor =
-            typedArray.getColor(R.styleable.ClockView_clockBackgroundColor, backgroundColor)
-    }
-
-    fun draw(canvas: Canvas, circle: Circle) {
+    override fun draw(canvas: Canvas, context: Circle) {
         canvas.drawCircle(
-            circle.pivotX,
-            circle.pivotY,
-            circle.radius + borderWidth,
+            context.pivotX,
+            context.pivotY,
+            context.radius + borderWidth,
             borderPaint
         )
         canvas.drawCircle(
-            circle.pivotX,
-            circle.pivotY,
-            circle.radius,
+            context.pivotX,
+            context.pivotY,
+            context.radius,
             backgroundPaint
         )
     }
@@ -76,7 +72,8 @@ internal class BackgroundDrawer(private val view: ClockView) : Drawer {
         )
     }
 
-    override fun restoreState(bundle: Bundle) {
+    override fun restoreState(state: Parcelable) {
+        val bundle = state as Bundle
         backgroundColor = bundle.getInt(KEY_BACKGROUND_COLOR)
         borderColor = bundle.getInt(KEY_BORDER_COLOR)
         borderWidth = bundle.getFloat(KEY_BORDER_WIDTH)

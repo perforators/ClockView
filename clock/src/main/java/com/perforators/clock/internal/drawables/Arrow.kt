@@ -1,44 +1,48 @@
-package com.perforators.clock.internal.drawers
+package com.perforators.clock.internal.drawables
 
-import android.content.res.TypedArray
 import android.graphics.Canvas
 import android.graphics.Color
 import android.graphics.Paint
 import android.os.Bundle
+import android.os.Parcelable
+import android.view.View
 import androidx.core.graphics.withRotation
 import androidx.core.os.bundleOf
 import com.perforators.clock.ClockView
-import com.perforators.clock.R
 import com.perforators.clock.internal.Circle
 import com.perforators.clock.internal.dpToPx
 
-internal abstract class ArrowDrawer(private val view: ClockView) : Drawer {
+internal abstract class Arrow(
+    private val owner: View,
+    override val key: String,
+    contextFactory: ContextFactory<Context>
+) : DrawableObject.WithContext<Arrow.Context>(contextFactory) {
 
     private val paint = Paint().apply {
         isAntiAlias = true
         color = DEFAULT_ARROW_COLOR
-        strokeWidth = DEFAULT_WIDTH_IN_DP.dpToPx(view.context)
+        strokeWidth = DEFAULT_WIDTH_IN_DP.dpToPx(owner.context)
     }
 
     var isShow: Boolean = true
         set(value) {
             if (value == field) return
             field = value
-            view.invalidate()
+            owner.invalidate()
         }
 
     var ratioLengthToRadius: Float = DEFAULT_LENGTH_RATIO
         set(value) {
             if (value == field) return
             field = value
-            view.invalidate()
+            owner.invalidate()
         }
 
     var ratioOffsetFromCenterToLength: Float = DEFAULT_OFFSET_RATIO
         set(value) {
             if (value == field) return
             field = value
-            view.invalidate()
+            owner.invalidate()
         }
 
     var color: Int = paint.color
@@ -46,7 +50,7 @@ internal abstract class ArrowDrawer(private val view: ClockView) : Drawer {
             if (field == value) return
             paint.color = value
             field = value
-            view.invalidate()
+            owner.invalidate()
         }
 
     var width: Float = paint.strokeWidth
@@ -54,10 +58,11 @@ internal abstract class ArrowDrawer(private val view: ClockView) : Drawer {
             if (field == value) return
             paint.strokeWidth = value
             field = value
-            view.invalidate()
+            owner.invalidate()
         }
 
-    fun draw(canvas: Canvas, timeInMillis: Long, circle: Circle) {
+    override fun draw(canvas: Canvas, context: Context) {
+        val (timeInMillis, circle) = context
         if (!isShow) return
         canvas.withRotation(
             degrees = calculateAngle(timeInMillis) - ADJUSTMENT_ANGLE,
@@ -72,7 +77,7 @@ internal abstract class ArrowDrawer(private val view: ClockView) : Drawer {
         }
     }
 
-    override fun saveState(): Bundle {
+    override fun saveState(): Parcelable {
         return bundleOf(
             KEY_SHOW to isShow,
             KEY_LENGTH to ratioLengthToRadius,
@@ -82,7 +87,8 @@ internal abstract class ArrowDrawer(private val view: ClockView) : Drawer {
         )
     }
 
-    override fun restoreState(bundle: Bundle) {
+    override fun restoreState(state: Parcelable) {
+        val bundle = state as Bundle
         isShow = bundle.getBoolean(KEY_SHOW)
         ratioLengthToRadius = bundle.getFloat(KEY_LENGTH)
         ratioOffsetFromCenterToLength = bundle.getFloat(KEY_OFFSET)
@@ -91,6 +97,11 @@ internal abstract class ArrowDrawer(private val view: ClockView) : Drawer {
     }
 
     abstract fun calculateAngle(timeInMillis: Long): Float
+
+    data class Context(
+        var timeInMillis: Long,
+        var circle: Circle
+    )
 
     companion object {
         private const val DEFAULT_LENGTH_RATIO = 0.8f
@@ -107,17 +118,15 @@ internal abstract class ArrowDrawer(private val view: ClockView) : Drawer {
     }
 }
 
-internal class SecondArrowDrawer(view: ClockView) : ArrowDrawer(view) {
+internal class SecondArrow(
+    owner: ClockView,
+    key: String,
+    contextFactory: ContextFactory<Context>,
+) : Arrow(owner, key, contextFactory) {
 
     init {
-        width = DEFAULT_WIDTH_IN_DP.dpToPx(view.context)
+        width = DEFAULT_WIDTH_IN_DP.dpToPx(owner.context)
         ratioLengthToRadius = DEFAULT_RATIO
-    }
-
-    override fun initialize(typedArray: TypedArray) {
-        isShow = typedArray.getBoolean(R.styleable.ClockView_showSecondArrow, isShow)
-        color = typedArray.getColor(R.styleable.ClockView_secondArrowColor, color)
-        width = typedArray.getDimension(R.styleable.ClockView_secondArrowWidth, width)
     }
 
     override fun calculateAngle(timeInMillis: Long): Float {
@@ -134,17 +143,15 @@ internal class SecondArrowDrawer(view: ClockView) : ArrowDrawer(view) {
     }
 }
 
-internal class MinuteArrowDrawer(view: ClockView) : ArrowDrawer(view) {
+internal class MinuteArrow(
+    owner: ClockView,
+    key: String,
+    contextFactory: ContextFactory<Context>,
+) : Arrow(owner, key, contextFactory) {
 
     init {
-        width = DEFAULT_WIDTH_IN_DP.dpToPx(view.context)
+        width = DEFAULT_WIDTH_IN_DP.dpToPx(owner.context)
         ratioLengthToRadius = DEFAULT_RATIO
-    }
-
-    override fun initialize(typedArray: TypedArray) {
-        isShow = typedArray.getBoolean(R.styleable.ClockView_showMinuteArrow, isShow)
-        color = typedArray.getColor(R.styleable.ClockView_minuteArrowColor, color)
-        width = typedArray.getDimension(R.styleable.ClockView_minuteArrowWidth, width)
     }
 
     override fun calculateAngle(timeInMillis: Long): Float {
@@ -161,17 +168,15 @@ internal class MinuteArrowDrawer(view: ClockView) : ArrowDrawer(view) {
     }
 }
 
-internal class HourArrowDrawer(view: ClockView) : ArrowDrawer(view) {
+internal class HourArrow(
+    owner: ClockView,
+    key: String,
+    contextFactory: ContextFactory<Context>,
+) : Arrow(owner, key, contextFactory) {
 
     init {
-        width = DEFAULT_WIDTH_IN_DP.dpToPx(view.context)
+        width = DEFAULT_WIDTH_IN_DP.dpToPx(owner.context)
         ratioLengthToRadius = DEFAULT_RATIO
-    }
-
-    override fun initialize(typedArray: TypedArray) {
-        isShow = typedArray.getBoolean(R.styleable.ClockView_showHourArrow, isShow)
-        color = typedArray.getColor(R.styleable.ClockView_hourArrowColor, color)
-        width = typedArray.getDimension(R.styleable.ClockView_hourArrowWidth, width)
     }
 
     override fun calculateAngle(timeInMillis: Long): Float {

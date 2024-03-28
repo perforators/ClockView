@@ -1,27 +1,29 @@
-package com.perforators.clock.internal.drawers
+package com.perforators.clock.internal.drawables
 
-import android.content.res.TypedArray
 import android.graphics.Canvas
 import android.graphics.Color
 import android.graphics.Paint
+import android.graphics.Rect
 import android.os.Bundle
+import android.os.Parcelable
 import androidx.core.graphics.withSave
 import androidx.core.os.bundleOf
 import com.perforators.clock.ClockView
-import com.perforators.clock.R
 import com.perforators.clock.internal.Circle
-import com.perforators.clock.internal.HourLabel
 import com.perforators.clock.internal.dpToPx
 import com.perforators.clock.internal.spToPx
+import kotlin.math.sqrt
 
-internal class HourLabelsDrawer(
-    private val view: ClockView,
-    private val labels: List<HourLabel>
-) : Drawer {
+internal class HourLabels(
+    private val owner: ClockView,
+    override val key: String,
+    hours: List<Int>,
+    contextFactory: ContextFactory<Circle>,
+) : DrawableObject.WithContext<Circle>(contextFactory) {
 
     private val paint = Paint().apply {
         isAntiAlias = true
-        textSize = DEFAULT_TEXT_SIZE_IN_SP.spToPx(view.context)
+        textSize = DEFAULT_TEXT_SIZE_IN_SP.spToPx(owner.context)
         color = DEFAULT_TEXT_COLOR
     }
 
@@ -30,7 +32,7 @@ internal class HourLabelsDrawer(
             if (field == value) return
             field = value
             paint.textSize = value
-            view.invalidate()
+            owner.invalidate()
         }
 
     var color = paint.color
@@ -38,44 +40,37 @@ internal class HourLabelsDrawer(
             if (field == value) return
             field = value
             paint.color = value
-            view.invalidate()
+            owner.invalidate()
         }
 
-    var offsetFromEdge = DEFAULT_OFFSET_IN_DP.dpToPx(view.context)
+    var offsetFromEdge = DEFAULT_OFFSET_IN_DP.dpToPx(owner.context)
         set(value) {
             if (field == value) return
             field = value
-            view.invalidate()
+            owner.invalidate()
         }
 
-    private var labelWithMaxDiagonal: HourLabel? = null
+    private val labels = hours.map(::Label)
+    private var maxLabelDiagonal: Double = 0.0
 
-    override fun initialize(typedArray: TypedArray) {
-        size = typedArray.getDimension(R.styleable.ClockView_labelsSize, size)
-        color = typedArray.getColor(R.styleable.ClockView_labelsColor, color)
-        offsetFromEdge =
-            typedArray.getDimension(R.styleable.ClockView_labelsOffsetFromEdge, offsetFromEdge)
-    }
-
-    fun measureLabels() {
+    override fun measure(widthMeasureSpec: Int, heightMeasureSpec: Int) {
+        maxLabelDiagonal = 0.0
         labels.forEach { label ->
             val labelText = label.hour.toString()
             paint.getTextBounds(labelText, 0, labelText.length, label.bounds)
-            if (label.diagonal > (labelWithMaxDiagonal?.diagonal ?: 0.0)) {
-                labelWithMaxDiagonal = label
-            }
+            maxLabelDiagonal = maxOf(maxLabelDiagonal, label.diagonal)
         }
     }
 
-    fun draw(canvas: Canvas, circle: Circle) {
-        val maxDiagonal = labelWithMaxDiagonal?.diagonal ?: return
-        val labelsOffsetFromCenter = circle.radius - offsetFromEdge - maxDiagonal / 2
+    override fun draw(canvas: Canvas, context: Circle) {
+        println(maxLabelDiagonal)
+        val labelsOffsetFromCenter = context.radius - offsetFromEdge - maxLabelDiagonal / 2
         labels.forEach { label ->
-            canvas.drawLabel(label, labelsOffsetFromCenter.toFloat(), circle)
+            canvas.drawLabel(label, labelsOffsetFromCenter.toFloat(), context)
         }
     }
 
-    private fun Canvas.drawLabel(label: HourLabel, offsetFromCenter: Float, circle: Circle) {
+    private fun Canvas.drawLabel(label: Label, offsetFromCenter: Float, circle: Circle) {
         withSave {
             val angle = label.hour * HOUR_TO_ANGLE_MULTIPLIER - ADJUSTMENT_ANGLE
             translate(circle.pivotX, circle.pivotY)
@@ -95,10 +90,18 @@ internal class HourLabelsDrawer(
         )
     }
 
-    override fun restoreState(bundle: Bundle) {
+    override fun restoreState(state: Parcelable) {
+        val bundle = state as Bundle
         size = bundle.getFloat(KEY_SIZE)
         color = bundle.getInt(KEY_COLOR)
         offsetFromEdge = bundle.getFloat(KEY_OFFSET)
+    }
+
+    private class Label(val hour: Int) {
+        val bounds = Rect()
+        val diagonal: Double get() = with(bounds) {
+            sqrt(width().toDouble() * width() + height() * height())
+        }
     }
 
     companion object {

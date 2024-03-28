@@ -1,6 +1,5 @@
 package com.perforators.clock
 
-import java.util.Calendar
 import java.util.TimeZone
 
 fun interface CurrentTimeInMillisProvider {
@@ -14,7 +13,9 @@ fun interface CurrentTimeInMillisProvider {
 
     companion object {
         val DEFAULT = CurrentTimeInMillisProvider {
-            Calendar.getInstance(TimeZone.getDefault()).time.time
+            val currentUtcTime = System.currentTimeMillis()
+            val timeZone = TimeZone.getDefault()
+            currentUtcTime + timeZone.getOffset(currentUtcTime)
         }
     }
 }

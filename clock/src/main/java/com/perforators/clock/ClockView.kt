@@ -7,15 +7,15 @@ import android.os.Bundle
 import android.os.Parcelable
 import android.util.AttributeSet
 import android.view.Choreographer
-import android.view.Choreographer.FrameCallback
 import android.view.View
 import com.perforators.clock.internal.Circle
-import com.perforators.clock.internal.HourLabel
-import com.perforators.clock.internal.drawers.BackgroundDrawer
-import com.perforators.clock.internal.drawers.HourArrowDrawer
-import com.perforators.clock.internal.drawers.HourLabelsDrawer
-import com.perforators.clock.internal.drawers.MinuteArrowDrawer
-import com.perforators.clock.internal.drawers.SecondArrowDrawer
+import com.perforators.clock.internal.drawables.Arrow
+import com.perforators.clock.internal.drawables.CircleWithBorder
+import com.perforators.clock.internal.drawables.ContextFactory
+import com.perforators.clock.internal.drawables.HourArrow
+import com.perforators.clock.internal.drawables.HourLabels
+import com.perforators.clock.internal.drawables.MinuteArrow
+import com.perforators.clock.internal.drawables.SecondArrow
 
 class ClockView @JvmOverloads constructor(
     context: Context,
@@ -31,54 +31,82 @@ class ClockView @JvmOverloads constructor(
             invalidate()
         }
 
-    private val secondArrowDrawer = SecondArrowDrawer(this)
-    var showSecondArrow by secondArrowDrawer::isShow
-    var secondArrowColor by secondArrowDrawer::color
-    var secondArrowWidth by secondArrowDrawer::width
+    private val circle = Circle()
 
-    private val minuteArrowDrawer = MinuteArrowDrawer(this)
-    var showMinuteArrow by minuteArrowDrawer::isShow
-    var minuteArrowColor by minuteArrowDrawer::color
-    var minuteArrowWidth by minuteArrowDrawer::width
+    private val arrowContextFactory = object : ContextFactory.Reusable<Arrow.Context>() {
+        override fun createNew() = Arrow.Context(currentTimeInMillis, circle)
+        override fun update(context: Arrow.Context) {
+            context.timeInMillis = currentTimeInMillis
+            context.circle = circle
+        }
+    }
 
-    private val hourArrowDrawer = HourArrowDrawer(this)
-    var showHourArrow by hourArrowDrawer::isShow
-    var hourArrowColor by hourArrowDrawer::color
-    var hourArrowWidth by hourArrowDrawer::width
+    private val secondArrow = SecondArrow(this, SECOND_ARROW_DRAWER_KEY, arrowContextFactory)
+    var showSecondArrow by secondArrow::isShow
+    var secondArrowColor by secondArrow::color
+    var secondArrowWidth by secondArrow::width
 
-    private val hourLabelsDrawer = HourLabelsDrawer(this, HOUR_LABELS)
-    var labelsSize by hourLabelsDrawer::size
-    var labelsColor by hourLabelsDrawer::color
-    var labelsOffsetFromEdge by hourLabelsDrawer::offsetFromEdge
+    private val minuteArrow = MinuteArrow(this, MINUTE_ARROW_DRAWER_KEY, arrowContextFactory)
+    var showMinuteArrow by minuteArrow::isShow
+    var minuteArrowColor by minuteArrow::color
+    var minuteArrowWidth by minuteArrow::width
 
-    private val backgroundDrawer = BackgroundDrawer(this)
-    var clockBackgroundColor by backgroundDrawer::backgroundColor
-    var borderWidth by backgroundDrawer::borderWidth
-    var borderColor by backgroundDrawer::borderColor
+    private val hourArrow = HourArrow(this, HOUR_ARROW_DRAWER_KEY, arrowContextFactory)
+    var showHourArrow by hourArrow::isShow
+    var hourArrowColor by hourArrow::color
+    var hourArrowWidth by hourArrow::width
 
-    private var circle = Circle()
+    private val hourLabels = HourLabels(this, HOUR_LABELS_DRAWER_KEY, HOURS) { circle }
+    var labelsSize by hourLabels::size
+    var labelsColor by hourLabels::color
+    var labelsOffsetFromEdge by hourLabels::offsetFromEdge
 
-    private val drawers = mapOf(
-        secondArrowDrawer::class to secondArrowDrawer,
-        minuteArrowDrawer::class to minuteArrowDrawer,
-        hourArrowDrawer::class to hourArrowDrawer,
-        backgroundDrawer::class to backgroundDrawer,
-        hourLabelsDrawer::class to hourLabelsDrawer,
+    private val background = CircleWithBorder(this, BACKGROUND_DRAWER_KEY) { circle }
+    var clockBackgroundColor by background::backgroundColor
+    var borderWidth by background::borderWidth
+    var borderColor by background::borderColor
+
+    private val drawableObjects = listOf(
+        background, hourLabels, hourArrow, minuteArrow, secondArrow
     )
 
     init {
         val typedArray: TypedArray = context.obtainStyledAttributes(attrs, R.styleable.ClockView)
-        drawers.values.forEach { drawer ->
-            drawer.initialize(typedArray)
+        secondArrow.apply {
+            isShow = typedArray.getBoolean(R.styleable.ClockView_showSecondArrow, isShow)
+            color = typedArray.getColor(R.styleable.ClockView_secondArrowColor, color)
+            width = typedArray.getDimension(R.styleable.ClockView_secondArrowWidth, width)
+        }
+        minuteArrow.apply {
+            isShow = typedArray.getBoolean(R.styleable.ClockView_showMinuteArrow, isShow)
+            color = typedArray.getColor(R.styleable.ClockView_minuteArrowColor, color)
+            width = typedArray.getDimension(R.styleable.ClockView_minuteArrowWidth, width)
+        }
+        hourArrow.apply {
+            isShow = typedArray.getBoolean(R.styleable.ClockView_showHourArrow, isShow)
+            color = typedArray.getColor(R.styleable.ClockView_hourArrowColor, color)
+            width = typedArray.getDimension(R.styleable.ClockView_hourArrowWidth, width)
+        }
+        hourLabels.apply {
+            size = typedArray.getDimension(R.styleable.ClockView_labelsSize, size)
+            color = typedArray.getColor(R.styleable.ClockView_labelsColor, color)
+            offsetFromEdge =
+                typedArray.getDimension(R.styleable.ClockView_labelsOffsetFromEdge, offsetFromEdge)
+        }
+        background.apply {
+            borderWidth = typedArray.getDimension(R.styleable.ClockView_borderWidth, borderWidth)
+            borderColor = typedArray.getColor(R.styleable.ClockView_borderColor, borderColor)
+            backgroundColor =
+                typedArray.getColor(R.styleable.ClockView_clockBackgroundColor, backgroundColor)
         }
         typedArray.recycle()
-        runTimePolling()
+        runTimePooling()
     }
 
-    private fun runTimePolling() {
+    private fun runTimePooling() {
         val choreographer = Choreographer.getInstance()
-        var frameCallback: FrameCallback? = null
-        frameCallback = FrameCallback {
+        var frameCallback: Choreographer.FrameCallback? = null
+        frameCallback = Choreographer.FrameCallback {
             currentTimeInMillis = timeProvider.provide()
             choreographer.postFrameCallback(frameCallback)
         }
@@ -87,16 +115,12 @@ class ClockView @JvmOverloads constructor(
 
     override fun onMeasure(widthMeasureSpec: Int, heightMeasureSpec: Int) {
         super.onMeasure(widthMeasureSpec, heightMeasureSpec)
-        hourLabelsDrawer.measureLabels()
+        drawableObjects.forEach { it.measure(widthMeasureSpec, heightMeasureSpec) }
     }
 
     override fun onDraw(canvas: Canvas) {
         updateCircle()
-        backgroundDrawer.draw(canvas, circle)
-        hourLabelsDrawer.draw(canvas, circle)
-        hourArrowDrawer.draw(canvas, currentTimeInMillis, circle)
-        minuteArrowDrawer.draw(canvas, currentTimeInMillis, circle)
-        secondArrowDrawer.draw(canvas, currentTimeInMillis, circle)
+        drawableObjects.forEach { it.draw(canvas) }
     }
 
     private fun updateCircle() {
@@ -115,24 +139,28 @@ class ClockView @JvmOverloads constructor(
 
     override fun onSaveInstanceState(): Parcelable {
         val bundle = Bundle()
-        drawers.forEach { (kClass, drawer) ->
-            bundle.putBundle(kClass.toString(), drawer.saveState())
-        }
+        drawableObjects.forEach { bundle.putParcelable(it.key, it.saveState()) }
         bundle.putParcelable(KEY_SUPER_STATE, super.onSaveInstanceState())
         return bundle
     }
 
     override fun onRestoreInstanceState(state: Parcelable) {
         val bundle = state as Bundle
-        drawers.forEach { (kClass, drawer) ->
-            val innerBundle = bundle.getBundle(kClass.toString()) ?: return@forEach
-            drawer.restoreState(innerBundle)
+        drawableObjects.forEach {
+            val innerState = bundle.getBundle(it.key) ?: return@forEach
+            it.restoreState(innerState)
         }
         super.onRestoreInstanceState(bundle.getParcelable(KEY_SUPER_STATE))
     }
 
     companion object {
         private const val KEY_SUPER_STATE = "clock_view_super_state"
-        private val HOUR_LABELS = (0..11).map { HourLabel(it) }
+        private val HOURS = (0..11).toList()
+
+        private const val HOUR_ARROW_DRAWER_KEY = "hour_drawer"
+        private const val MINUTE_ARROW_DRAWER_KEY = "minute_drawer"
+        private const val SECOND_ARROW_DRAWER_KEY = "second_drawer"
+        private const val BACKGROUND_DRAWER_KEY = "background_drawer"
+        private const val HOUR_LABELS_DRAWER_KEY = "hour_labels_drawer"
     }
 }
