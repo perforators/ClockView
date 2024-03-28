@@ -71,35 +71,29 @@ class ClockView @JvmOverloads constructor(
     )
 
     init {
-        val typedArray: TypedArray = context.obtainStyledAttributes(attrs, R.styleable.ClockView)
-        secondArrow.apply {
-            isShow = typedArray.getBoolean(R.styleable.ClockView_showSecondArrow, isShow)
-            color = typedArray.getColor(R.styleable.ClockView_secondArrowColor, color)
-            width = typedArray.getDimension(R.styleable.ClockView_secondArrowWidth, width)
+        val attributes: TypedArray = context.obtainStyledAttributes(attrs, R.styleable.ClockView)
+        with(attributes) {
+            showSecondArrow = getBoolean(R.styleable.ClockView_showSecondArrow, showSecondArrow)
+            secondArrowColor = getColor(R.styleable.ClockView_secondArrowColor, secondArrowColor)
+            secondArrowWidth =
+                getDimension(R.styleable.ClockView_secondArrowWidth, secondArrowWidth)
+            showMinuteArrow = getBoolean(R.styleable.ClockView_showMinuteArrow, showMinuteArrow)
+            minuteArrowColor = getColor(R.styleable.ClockView_minuteArrowColor, minuteArrowColor)
+            minuteArrowWidth =
+                getDimension(R.styleable.ClockView_minuteArrowWidth, minuteArrowWidth)
+            showHourArrow = getBoolean(R.styleable.ClockView_showSecondArrow, showSecondArrow)
+            hourArrowColor = getColor(R.styleable.ClockView_hourArrowColor, hourArrowColor)
+            hourArrowWidth = getDimension(R.styleable.ClockView_hourArrowWidth, hourArrowWidth)
+            labelsSize = getDimension(R.styleable.ClockView_labelsSize, labelsSize)
+            labelsColor = getColor(R.styleable.ClockView_labelsColor, labelsColor)
+            labelsOffsetFromEdge =
+                getDimension(R.styleable.ClockView_labelsOffsetFromEdge, labelsOffsetFromEdge)
+            borderWidth = getDimension(R.styleable.ClockView_borderWidth, borderWidth)
+            borderColor = getColor(R.styleable.ClockView_borderColor, borderColor)
+            clockBackgroundColor =
+                getColor(R.styleable.ClockView_clockBackgroundColor, clockBackgroundColor)
         }
-        minuteArrow.apply {
-            isShow = typedArray.getBoolean(R.styleable.ClockView_showMinuteArrow, isShow)
-            color = typedArray.getColor(R.styleable.ClockView_minuteArrowColor, color)
-            width = typedArray.getDimension(R.styleable.ClockView_minuteArrowWidth, width)
-        }
-        hourArrow.apply {
-            isShow = typedArray.getBoolean(R.styleable.ClockView_showHourArrow, isShow)
-            color = typedArray.getColor(R.styleable.ClockView_hourArrowColor, color)
-            width = typedArray.getDimension(R.styleable.ClockView_hourArrowWidth, width)
-        }
-        hourLabels.apply {
-            size = typedArray.getDimension(R.styleable.ClockView_labelsSize, size)
-            color = typedArray.getColor(R.styleable.ClockView_labelsColor, color)
-            offsetFromEdge =
-                typedArray.getDimension(R.styleable.ClockView_labelsOffsetFromEdge, offsetFromEdge)
-        }
-        background.apply {
-            borderWidth = typedArray.getDimension(R.styleable.ClockView_borderWidth, borderWidth)
-            borderColor = typedArray.getColor(R.styleable.ClockView_borderColor, borderColor)
-            backgroundColor =
-                typedArray.getColor(R.styleable.ClockView_clockBackgroundColor, backgroundColor)
-        }
-        typedArray.recycle()
+        attributes.recycle()
         runTimePolling()
     }
 
