@@ -5,13 +5,13 @@ import android.graphics.Color
 import android.graphics.Paint
 import android.os.Bundle
 import android.os.Parcelable
+import android.view.View
 import androidx.core.os.bundleOf
-import com.perforators.clock.ClockView
 import com.perforators.clock.internal.Circle
 import com.perforators.clock.internal.dpToPx
 
 internal class CircleWithBorder(
-    private val owner: ClockView,
+    private val owner: View,
     override val key: String,
     contextProvider: ContextProvider<Circle>
 ) : DrawableObject.WithContext<Circle>(contextProvider) {

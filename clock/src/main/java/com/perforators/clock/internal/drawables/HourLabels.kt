@@ -6,16 +6,16 @@ import android.graphics.Paint
 import android.graphics.Rect
 import android.os.Bundle
 import android.os.Parcelable
+import android.view.View
 import androidx.core.graphics.withSave
 import androidx.core.os.bundleOf
-import com.perforators.clock.ClockView
 import com.perforators.clock.internal.Circle
 import com.perforators.clock.internal.dpToPx
 import com.perforators.clock.internal.spToPx
 import kotlin.math.sqrt
 
 internal class HourLabels(
-    private val owner: ClockView,
+    private val owner: View,
     override val key: String,
     hours: List<Int>,
     contextProvider: ContextProvider<Circle>,
