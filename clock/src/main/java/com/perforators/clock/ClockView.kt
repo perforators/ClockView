@@ -31,7 +31,7 @@ class ClockView @JvmOverloads constructor(
             invalidate()
         }
 
-    private val circle = Circle()
+    private var circle = Circle()
 
     private val timeArrowContextProvider = object : ContextProvider.Reusable<TimeArrow.Context>() {
         override fun createNew() = TimeArrow.Context(currentTimeInMillis, circle)
@@ -63,8 +63,13 @@ class ClockView @JvmOverloads constructor(
 
     private val background = CircleWithBorder(this, BACKGROUND_KEY) { circle }
     var clockBackgroundColor by background::backgroundColor
-    var borderWidth by background::borderWidth
     var borderColor by background::borderColor
+    var borderWidth: Float
+        get() = background.borderWidth
+        set(value) {
+            background.borderWidth = value
+            updateCircle()
+        }
 
     private val drawableObjects = listOf(
         background, hourLabels, hourArrow, minuteArrow, secondArrow
@@ -112,19 +117,23 @@ class ClockView @JvmOverloads constructor(
         drawableObjects.forEach { it.measure(widthMeasureSpec, heightMeasureSpec) }
     }
 
-    override fun onDraw(canvas: Canvas) {
+    override fun onSizeChanged(w: Int, h: Int, oldw: Int, oldh: Int) {
+        super.onSizeChanged(w, h, oldw, oldh)
         updateCircle()
-        drawableObjects.forEach { it.draw(canvas) }
     }
 
     private fun updateCircle() {
         val widthWithoutPaddings = width - paddingStart - paddingEnd
         val heightWithoutPaddings = height - paddingBottom - paddingTop
-        circle.apply {
-            pivotX = paddingStart + widthWithoutPaddings / 2f
-            pivotY = paddingTop + heightWithoutPaddings / 2f
+        circle = Circle(
+            pivotX = paddingStart + widthWithoutPaddings / 2f,
+            pivotY = paddingTop + heightWithoutPaddings / 2f,
             radius = minOf(widthWithoutPaddings, heightWithoutPaddings) / 2f - borderWidth
-        }
+        )
+    }
+
+    override fun onDraw(canvas: Canvas) {
+        drawableObjects.forEach { it.draw(canvas) }
     }
 
     override fun onSaveInstanceState(): Parcelable {
