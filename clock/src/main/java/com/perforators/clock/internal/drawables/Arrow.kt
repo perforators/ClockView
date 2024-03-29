@@ -4,7 +4,6 @@ import android.graphics.Canvas
 import android.graphics.Color
 import android.graphics.Paint
 import android.os.Bundle
-import android.os.Parcelable
 import android.view.View
 import androidx.core.graphics.withRotation
 import androidx.core.os.bundleOf
@@ -77,7 +76,7 @@ internal abstract class Arrow(
         }
     }
 
-    override fun saveState(): Parcelable {
+    override fun saveState(): Bundle {
         return bundleOf(
             KEY_SHOW to isShow,
             KEY_LENGTH to ratioLengthToRadius,
@@ -87,13 +86,12 @@ internal abstract class Arrow(
         )
     }
 
-    override fun restoreState(state: Parcelable) {
-        val bundle = state as Bundle
-        isShow = bundle.getBoolean(KEY_SHOW)
-        ratioLengthToRadius = bundle.getFloat(KEY_LENGTH)
-        ratioOffsetFromCenterToLength = bundle.getFloat(KEY_OFFSET)
-        color = bundle.getInt(KEY_COLOR)
-        width = bundle.getFloat(KEY_WIDTH)
+    override fun restoreState(state: Bundle) {
+        isShow = state.getBoolean(KEY_SHOW)
+        ratioLengthToRadius = state.getFloat(KEY_LENGTH)
+        ratioOffsetFromCenterToLength = state.getFloat(KEY_OFFSET)
+        color = state.getInt(KEY_COLOR)
+        width = state.getFloat(KEY_WIDTH)
     }
 
     abstract fun calculateAngle(timeInMillis: Long): Float

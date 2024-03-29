@@ -133,7 +133,7 @@ class ClockView @JvmOverloads constructor(
 
     override fun onSaveInstanceState(): Parcelable {
         val bundle = Bundle()
-        drawableObjects.forEach { bundle.putParcelable(it.key, it.saveState()) }
+        drawableObjects.forEach { bundle.putBundle(it.key, it.saveState()) }
         bundle.putParcelable(KEY_SUPER_STATE, super.onSaveInstanceState())
         return bundle
     }

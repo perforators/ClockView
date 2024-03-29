@@ -5,7 +5,6 @@ import android.graphics.Color
 import android.graphics.Paint
 import android.graphics.Rect
 import android.os.Bundle
-import android.os.Parcelable
 import android.view.View
 import androidx.core.graphics.withSave
 import androidx.core.os.bundleOf
@@ -89,11 +88,10 @@ internal class HourLabels(
         )
     }
 
-    override fun restoreState(state: Parcelable) {
-        val bundle = state as Bundle
-        size = bundle.getFloat(KEY_SIZE)
-        color = bundle.getInt(KEY_COLOR)
-        offsetFromEdge = bundle.getFloat(KEY_OFFSET)
+    override fun restoreState(state: Bundle) {
+        size = state.getFloat(KEY_SIZE)
+        color = state.getInt(KEY_COLOR)
+        offsetFromEdge = state.getFloat(KEY_OFFSET)
     }
 
     private class Label(val hour: Int) {

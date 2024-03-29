@@ -1,9 +1,10 @@
 package com.perforators.clock.internal.drawables
 
 import android.graphics.Canvas
+import android.os.Bundle
 import android.os.Parcelable
 
-internal interface DrawableObject : Restorable {
+internal interface DrawableObject : Restorable<Bundle> {
     fun draw(canvas: Canvas)
     fun measure(widthMeasureSpec: Int, heightMeasureSpec: Int) = Unit
 
@@ -33,8 +34,8 @@ internal fun interface ContextProvider<Context> {
     }
 }
 
-internal interface Restorable {
+internal interface Restorable<T : Parcelable> {
     val key: String
-    fun saveState(): Parcelable
-    fun restoreState(state: Parcelable)
+    fun saveState(): T
+    fun restoreState(state: T)
 }

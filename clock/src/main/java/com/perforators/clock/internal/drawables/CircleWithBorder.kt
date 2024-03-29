@@ -4,7 +4,6 @@ import android.graphics.Canvas
 import android.graphics.Color
 import android.graphics.Paint
 import android.os.Bundle
-import android.os.Parcelable
 import android.view.View
 import androidx.core.os.bundleOf
 import com.perforators.clock.internal.Circle
@@ -72,11 +71,10 @@ internal class CircleWithBorder(
         )
     }
 
-    override fun restoreState(state: Parcelable) {
-        val bundle = state as Bundle
-        backgroundColor = bundle.getInt(KEY_BACKGROUND_COLOR)
-        borderColor = bundle.getInt(KEY_BORDER_COLOR)
-        borderWidth = bundle.getFloat(KEY_BORDER_WIDTH)
+    override fun restoreState(state: Bundle) {
+        backgroundColor = state.getInt(KEY_BACKGROUND_COLOR)
+        borderColor = state.getInt(KEY_BORDER_COLOR)
+        borderWidth = state.getFloat(KEY_BORDER_WIDTH)
     }
 
     companion object {
