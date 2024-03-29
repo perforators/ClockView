@@ -16,7 +16,7 @@ import kotlin.math.sqrt
 internal class HourLabels(
     private val owner: View,
     override val key: String,
-    hours: List<Int>,
+    hours: List<Int> = DEFAULT_HOURS,
     contextProvider: ContextProvider<Circle>,
 ) : DrawableObject.WithContext<Circle>(contextProvider) {
 
@@ -52,6 +52,12 @@ internal class HourLabels(
     private val labels = hours.map(::Label)
     private var maxLabelDiagonal: Double = 0.0
 
+    init {
+        require(hours.all { it <= MAXIMUM_HOUR_LIMIT }) {
+            "Hour must no more then $MAXIMUM_HOUR_LIMIT"
+        }
+    }
+
     override fun measure(widthMeasureSpec: Int, heightMeasureSpec: Int) {
         maxLabelDiagonal = 0.0
         labels.forEach { label ->
@@ -70,7 +76,7 @@ internal class HourLabels(
 
     private fun Canvas.drawLabel(label: Label, offsetFromCenter: Float, circle: Circle) {
         withSave {
-            val angle = label.hour * HOUR_TO_ANGLE_MULTIPLIER - ADJUSTMENT_ANGLE
+            val angle = label.angle
             translate(circle.pivotX, circle.pivotY)
             rotate(angle)
             translate(offsetFromCenter, 0f)
@@ -99,14 +105,21 @@ internal class HourLabels(
         val diagonal: Double get() = with(bounds) {
             sqrt(width().toDouble() * width() + height() * height())
         }
+        val angle: Float = hour * HOUR_TO_ANGLE_MULTIPLIER - ADJUSTMENT_ANGLE
+
+        companion object {
+            private const val HOUR_TO_ANGLE_MULTIPLIER = 30f
+            private const val ADJUSTMENT_ANGLE = 90f
+        }
     }
 
     companion object {
+        private val DEFAULT_HOURS = (0..11).toList()
+
         private const val DEFAULT_TEXT_SIZE_IN_SP = 10
         private const val DEFAULT_TEXT_COLOR = Color.BLACK
         private const val DEFAULT_OFFSET_IN_DP = 4
-        private const val HOUR_TO_ANGLE_MULTIPLIER = 30f
-        private const val ADJUSTMENT_ANGLE = 90f
+        private const val MAXIMUM_HOUR_LIMIT = 11
 
         private const val KEY_SIZE = "size"
         private const val KEY_COLOR = "color"

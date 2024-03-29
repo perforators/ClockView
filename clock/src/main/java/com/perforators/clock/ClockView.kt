@@ -56,7 +56,7 @@ class ClockView @JvmOverloads constructor(
     var hourArrowColor by hourArrow::color
     var hourArrowWidth by hourArrow::width
 
-    private val hourLabels = HourLabels(this, HOUR_LABELS_KEY, HOURS) { circle }
+    private val hourLabels = HourLabels(this, HOUR_LABELS_KEY) { circle }
     var labelsSize by hourLabels::size
     var labelsColor by hourLabels::color
     var labelsOffsetFromEdge by hourLabels::offsetFromEdge
@@ -154,8 +154,6 @@ class ClockView @JvmOverloads constructor(
 
     companion object {
         private const val KEY_SUPER_STATE = "clock_view_super_state"
-        private val HOURS = (0..11).toList()
-
         private const val HOUR_ARROW_KEY = "hour_arrow"
         private const val MINUTE_ARROW_KEY = "minute_arrow"
         private const val SECOND_ARROW_KEY = "second_arrow"

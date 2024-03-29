@@ -11,7 +11,7 @@
         android:layout_width="match_parent"
         android:layout_height="300dp"
         android:padding="16dp"
-        app:labelsSize="24sp"
+        app:labelsSize="30sp"
         app:labelsOffsetFromEdge="8dp"
         app:clockBackgroundColor="@color/gray"
         app:borderColor="@android:color/black"
