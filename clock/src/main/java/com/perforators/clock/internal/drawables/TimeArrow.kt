@@ -11,11 +11,11 @@ import com.perforators.clock.ClockView
 import com.perforators.clock.internal.Circle
 import com.perforators.clock.internal.dpToPx
 
-internal abstract class Arrow(
+internal abstract class TimeArrow(
     private val owner: View,
     override val key: String,
     contextProvider: ContextProvider<Context>
-) : DrawableObject.WithContext<Arrow.Context>(contextProvider) {
+) : DrawableObject.WithContext<TimeArrow.Context>(contextProvider) {
 
     private val paint = Paint().apply {
         isAntiAlias = true
@@ -61,8 +61,8 @@ internal abstract class Arrow(
         }
 
     override fun draw(canvas: Canvas, context: Context) {
-        val (timeInMillis, circle) = context
         if (!isShow) return
+        val (timeInMillis, circle) = context
         canvas.withRotation(
             degrees = calculateAngle(timeInMillis) - ADJUSTMENT_ANGLE,
             pivotX = circle.pivotX,
@@ -120,7 +120,7 @@ internal class SecondArrow(
     owner: ClockView,
     key: String,
     contextProvider: ContextProvider<Context>,
-) : Arrow(owner, key, contextProvider) {
+) : TimeArrow(owner, key, contextProvider) {
 
     init {
         width = DEFAULT_WIDTH_IN_DP.dpToPx(owner.context)
@@ -145,7 +145,7 @@ internal class MinuteArrow(
     owner: ClockView,
     key: String,
     contextProvider: ContextProvider<Context>,
-) : Arrow(owner, key, contextProvider) {
+) : TimeArrow(owner, key, contextProvider) {
 
     init {
         width = DEFAULT_WIDTH_IN_DP.dpToPx(owner.context)
@@ -170,7 +170,7 @@ internal class HourArrow(
     owner: ClockView,
     key: String,
     contextProvider: ContextProvider<Context>,
-) : Arrow(owner, key, contextProvider) {
+) : TimeArrow(owner, key, contextProvider) {
 
     init {
         width = DEFAULT_WIDTH_IN_DP.dpToPx(owner.context)

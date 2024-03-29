@@ -9,7 +9,7 @@ import android.util.AttributeSet
 import android.view.Choreographer
 import android.view.View
 import com.perforators.clock.internal.Circle
-import com.perforators.clock.internal.drawables.Arrow
+import com.perforators.clock.internal.drawables.TimeArrow
 import com.perforators.clock.internal.drawables.CircleWithBorder
 import com.perforators.clock.internal.drawables.ContextProvider
 import com.perforators.clock.internal.drawables.HourArrow
@@ -33,25 +33,25 @@ class ClockView @JvmOverloads constructor(
 
     private val circle = Circle()
 
-    private val arrowContextProvider = object : ContextProvider.Reusable<Arrow.Context>() {
-        override fun createNew() = Arrow.Context(currentTimeInMillis, circle)
-        override fun update(context: Arrow.Context) {
+    private val timeArrowContextProvider = object : ContextProvider.Reusable<TimeArrow.Context>() {
+        override fun createNew() = TimeArrow.Context(currentTimeInMillis, circle)
+        override fun update(context: TimeArrow.Context) {
             context.timeInMillis = currentTimeInMillis
             context.circle = circle
         }
     }
 
-    private val secondArrow = SecondArrow(this, SECOND_ARROW_KEY, arrowContextProvider)
+    private val secondArrow = SecondArrow(this, SECOND_ARROW_KEY, timeArrowContextProvider)
     var showSecondArrow by secondArrow::isShow
     var secondArrowColor by secondArrow::color
     var secondArrowWidth by secondArrow::width
 
-    private val minuteArrow = MinuteArrow(this, MINUTE_ARROW_KEY, arrowContextProvider)
+    private val minuteArrow = MinuteArrow(this, MINUTE_ARROW_KEY, timeArrowContextProvider)
     var showMinuteArrow by minuteArrow::isShow
     var minuteArrowColor by minuteArrow::color
     var minuteArrowWidth by minuteArrow::width
 
-    private val hourArrow = HourArrow(this, HOUR_ARROW_KEY, arrowContextProvider)
+    private val hourArrow = HourArrow(this, HOUR_ARROW_KEY, timeArrowContextProvider)
     var showHourArrow by hourArrow::isShow
     var hourArrowColor by hourArrow::color
     var hourArrowWidth by hourArrow::width
@@ -118,18 +118,14 @@ class ClockView @JvmOverloads constructor(
     }
 
     private fun updateCircle() {
+        val widthWithoutPaddings = width - paddingStart - paddingEnd
+        val heightWithoutPaddings = height - paddingBottom - paddingTop
         circle.apply {
-            pivotX = width / 2f
-            pivotY = height / 2f
+            pivotX = paddingStart + widthWithoutPaddings / 2f
+            pivotY = paddingTop + heightWithoutPaddings / 2f
             radius = minOf(widthWithoutPaddings, heightWithoutPaddings) / 2f - borderWidth
         }
     }
-
-    private val View.widthWithoutPaddings: Int
-        get() = width - paddingLeft - paddingRight
-
-    private val View.heightWithoutPaddings: Int
-        get() = height - paddingTop - paddingBottom
 
     override fun onSaveInstanceState(): Parcelable {
         val bundle = Bundle()
